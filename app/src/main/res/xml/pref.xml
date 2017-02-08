@@ -7,6 +7,7 @@
             android:key="pref_ip"
             android:title="Server IP" />
         <EditTextPreference
+            android:numeric="integer"
             android:defaultValue="16834"
             android:key="pref_port"
             android:title="Server Port" />
