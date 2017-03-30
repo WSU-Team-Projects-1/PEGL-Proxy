@@ -2,6 +2,7 @@ package wsu.team1.a2016.peglproxy;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import dji.common.error.DJIError;
@@ -18,7 +20,6 @@ import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIBaseProduct;
 import dji.sdk.sdkmanager.DJISDKManager;
 
-//import  dji.sdk
 public class MainActivity extends Activity {
 
     private static final String TAG = MainActivity.class.getName();
@@ -59,6 +60,19 @@ public class MainActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    //
+    static String ip;
+    static int port;
+
+    public void onStartPress(View V) {
+        Log.d("I", "press");
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        ip = sharedPref.getString("pref_ip", "");
+        port = Integer.parseInt(sharedPref.getString("pref_port", "99"));
+        Client c = new Client();
+        c.execute();
     }
 
     //DJI Stuff
