@@ -16,8 +16,12 @@ import android.widget.Toast;
 
 import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
+import dji.common.flightcontroller.DJIFlightControllerCurrentState;
 import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIBaseProduct;
+import dji.sdk.flightcontroller.DJIFlightController;
+import dji.sdk.flightcontroller.DJIFlightControllerDelegate;
+import dji.sdk.products.DJIAircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 public class MainActivity extends Activity {
@@ -25,6 +29,7 @@ public class MainActivity extends Activity {
     private static final String TAG = MainActivity.class.getName();
     public static final String FLAG_CONNECTION_CHANGE = "dji_sdk_connection_change";
     private static DJIBaseProduct mProduct;
+    private DJIFlightController mFlightController = null;
     private Handler mHandler;
 
 
@@ -37,7 +42,8 @@ public class MainActivity extends Activity {
 
 
         mHandler = new Handler(Looper.getMainLooper());
-        DJISDKManager.getInstance().initSDKManager(this, mDJISDKManagerCallback);
+        DJISDKManager foo = DJISDKManager.getInstance();
+        foo.initSDKManager(this, mDJISDKManagerCallback);
     }
 
     @Override
@@ -62,18 +68,46 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    //
+    // values used by client service
     static String ip;
     static int port;
+    static double droneLocationLat;
+    static double droneLocationLng;
 
     public void onStartPress(View V) {
-        Log.d("I", "press");
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         ip = sharedPref.getString("pref_ip", "");
         port = Integer.parseInt(sharedPref.getString("pref_port", "99"));
         Client c = new Client();
         c.execute();
     }
+
+    public void buttonFoo(View V) {
+        initFlightController();
+    }
+
+//
+
+    private boolean isFlightControllerSupported() {
+        return DJISDKManager.getInstance().getDJIProduct() != null &&
+                DJISDKManager.getInstance().getDJIProduct() instanceof DJIAircraft &&
+                ((DJIAircraft) DJISDKManager.getInstance().getDJIProduct()).getFlightController() != null;
+    }
+
+
+    private void initFlightController() {
+        if (isFlightControllerSupported()) {
+            mFlightController = ((DJIAircraft) DJISDKManager.getInstance().getDJIProduct()).getFlightController();
+            mFlightController.setUpdateSystemStateCallback(new DJIFlightControllerDelegate.FlightControllerUpdateSystemStateCallback() {
+                @Override
+                public void onResult(final DJIFlightControllerCurrentState state) {
+                    droneLocationLat = state.getAircraftLocation().getLatitude();
+                    droneLocationLng = state.getAircraftLocation().getLongitude();
+                }
+            });
+        }
+    }
+
 
     //DJI Stuff
 
@@ -99,7 +133,6 @@ public class MainActivity extends Activity {
                     }
                 });
             }
-            Log.e("TAG", error.toString());
         }
 
         @Override

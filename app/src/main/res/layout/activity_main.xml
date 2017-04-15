@@ -25,4 +25,14 @@
         android:layout_marginTop="21dp"
         android:onClick="onStartPress"
         android:text="Start" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/button"
+        android:layout_marginStart="54dp"
+        android:layout_toEndOf="@+id/button"
+        android:onClick="buttonFoo"
+        android:text="Button" />
 </RelativeLayout>
